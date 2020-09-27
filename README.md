@@ -17,7 +17,7 @@ I can use this tool to separate between these configuration files and `decode` i
 
 A new directory will be created, the name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
 
-The name of the directly will also contain the `Creation Timestamp` part to make it easier to identify it.
+The name of the directly will also contain the `creationTimestamp` part to make it easier to identify it.
 ~~~
 # ./mca.sh mc-file.yaml
 # ls
