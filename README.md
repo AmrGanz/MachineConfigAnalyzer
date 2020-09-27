@@ -2,11 +2,11 @@
 
 This script can take one of three options:
 - decode:
-  you can provide multiple MachineConfig YAML files and it will decode all of them.
+    you can provide multiple MachineConfig YAML files and it will decode all of them.
 - compare:
-  Will decode two MachineConfig YAML files then compare between their contents
+    Will decode two MachineConfig YAML files then compare between their contents
 - help:
-  Gives a bried description about the tool
+    Gives a brief description about the tool
 
 
 # Example, using `decode` option:
