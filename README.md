@@ -79,14 +79,14 @@ checking differences between July7.yaml and Sep18.yaml MachineConfig files
 
 .... decoding mc-file2.yaml
 
-Uniqe files existing only in mc-file1.yaml MachineConfig:
+Unique files existing only in mc-file1.yaml MachineConfig:
 
 Only in rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/: etcd.conf
 Only in rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/: etcd-generate-certs.yaml.template
 ...
 Only in rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/: tokenize-signer.sh
 
-Uniqe files existing only in mc-file2.yaml MachineConfig:
+Unique files existing only in mc-file2.yaml MachineConfig:
 
 Only in rendered-master-3130d4b00faa48cef9b9b50252bcbbbbb-2020-01-09T11:26:25Z/decoded/: 99-kni.conf
 Only in rendered-master-3130d4b00faa48cef9b9b50252bcbbbbb-2020-01-09T11:26:25Z/decoded/: config.hcl.tmpl
