@@ -107,3 +107,7 @@ sdn.conf
 # Notes:
 - machineConfig files should be in YAML format "for now".
 - `compare` operation will first `decode`, even if `decode` operation was already done.
+- This tool uses `yq` that can be installed by running the following command:
+~~~
+# pip install yq
+~~~
