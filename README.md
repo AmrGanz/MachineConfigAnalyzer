@@ -1,13 +1,26 @@
-A tool to decode MachineConfig YAML files, it will also extract configuration files from the MachineConfig into a separate directory.
+# A tool to decode and extract configuration files from the MachineConfig resource definition files.
 
-USAGE: ./decode-mc.sh <operation> <MachineConfig file1> <MachineConfig file2> ....
+- Example:
 
-OPERATIONS:
-        decode: 
-                Can take multiple MachineConfig files to decode them into a readable files and extract the configurations from each one.
-                Each provides MachineConfig file will result in a newly created direcory for it. This directory will have the actual name.
-                of the provided MachineConfig file.
-        
-        compare: 
-                Will try to find different files that have been extracted from each MachineConfig "this option will rely on the native 'diff' command".
-                It will always compare between the first two MachineConfig files, so a third or fourth or ... arguments will be neglected.
+Assuming I have generated a YAMl file using the following command:
+~~~
+# oc get mc <name> -o yaml > mc-file.yaml
+~~~        
+
+Normally, this file is encoded and it is hard to read the configurations files contents directly from it. Also, the YAM file can contain multiple configurations files.
+
+I can use this tool to separate between these configuration files and `decode` it into a readable format.
+
+~~~
+# ./mca.sh mc-file.yaml
+~~~
+
+A new directory will be created, the name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
+
+The name of the directly will also contain the `Creation Timestamp` part to make it easier to identify it.
+~~~
+# ./mca.sh mc-file.yaml
+# ls
+-rw-r--r--. 1 user user 117349 Sep 24 14:41 mc-file.yaml
+drwxrwxr-x. 3 user user   4096 Sep 27 20:13 rendered-master-3130d4b00faa48cef9b9b50252bcdwdw9-2020-07-07T11:26:25Z
+~~~
