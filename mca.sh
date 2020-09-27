@@ -33,10 +33,10 @@ function compare() {
         dir1=`cat $1 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         dir2=`cat $2 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         diff=`diff -q $dir1/decoded/ $dir2/decoded/ | sort`
-        echo -e "\e[1;43mUniqe files existing is $1 MachineConfig only:\e[0m"
+        echo -e "\e[1;43mUnique files existing is $1 MachineConfig only:\e[0m"
         echo "$diff" | grep Only | grep $dir1
 	echo ""
-        echo -e "\e[1;43mUniqe files existing is $2 MachineConfig only:\e[0m"
+        echo -e "\e[1;43mUnique files existing is $2 MachineConfig only:\e[0m"
         echo "$diff" | grep Only | grep $dir2
         echo ""
 	echo -e "\e[1;43mFiles existing in both MachineConfig but differ in contents:\e[0m"
