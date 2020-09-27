@@ -1,4 +1,4 @@
-# A tool to decode and extract configuration files from the MachineConfig YAML files in OpenShift4.
+# A tool to decode and extract configuration files from MachineConfig YAML files in OpenShift4.
 
 This script can take one of three options:
 - decode:
@@ -16,9 +16,9 @@ Assuming I have generated a YAMl file using the following command:
 # oc get mc <name> -o yaml > mc-file.yaml
 ~~~        
 
-Normally, this file is encoded and it is hard to read the configuration file contents directly from it. Also, the YAML file can contain multiple configuration files at the same time.
+Normally, this file is encoded and it is difficult to read the configuration file contents directly from it. Also, the YAML file can contain multiple configuration files at the same time.
 
-I can use this tool to separate between these configuration files and `decode` it into a readable format:
+You can use this tool to separate between these configuration files and `decode` it into a readable format:
 
 ~~~
 # ./mca.sh decode mc-file.yaml
@@ -60,13 +60,13 @@ And another sub-directory called **decoded** will be created for the same files 
 
 # Example, using `compare` option:
 
-Assuming I have generated a YAMl file using the following command:
+Assuming you have generated a YAMl file using the following command:
 ~~~
 # oc get mc <name> -o yaml > mc-file1.yaml
 # oc get mc <another name> -o yaml > mc-file2.yaml
 ~~~
 
-I can compare between their contents as follows:
+You can compare between their contents as follows:
 ~~~
 # ./mca.sh compare mc-file1.yaml mc-file2.yaml
 ~~~
@@ -103,3 +103,7 @@ openshift-config-user-ca-bundle.crt
 root-ca.crt
 sdn.conf
 ~~~
+
+# Notes:
+- machineConfig files should be in YAML format "for now".
+- `compare` operation will first `decode`, even if `decode` operation was already done.
