@@ -1,4 +1,4 @@
-# A tool to decode and extract configuration files from MachineConfig YAML files in OpenShift4.
+# A tool to decode and compare configuration files from MachineConfig YAML files in OpenShift4.
 
 This script can take one of three options:
 - decode:
