@@ -2,7 +2,22 @@
 
 # Expand aliases
 shopt -s expand_aliases
-alias urldecode='python -c "import sys, urllib.parse as ul; print(ul.unquote(sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()[0:-1]))"'
+
+# Check Python version
+pversion=`python -c 'import sys; print(".".join(map(str, sys.version_info[:3])))' | cut -d"." -f1`
+if [ $pversion == 2 ]; then
+	alias urldecode='python -c "import urllib, sys; print urllib.unquote(sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()[0:-1])"'
+elif [ $pversion == 3 ]; then
+	alias urldecode='python -c "import sys, urllib.parse as ul; print(ul.unquote(sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()[0:-1]))"'
+else
+	echo "make sure you have python onstaled!"
+fi
+
+# Check if "yq" is installed
+which yq &> /dev/null
+if [ $? -ne 0 ]; then
+	echo "Please install "yq" first: # pip install yq"
+fi
 
 function checkfile() {
 	type=`cat $1 2> /dev/null | yq .kind | sed 's/"//g'`
@@ -15,6 +30,7 @@ function checkfile() {
 
 function decode() {
 	echo -e "\e[1m.... decoding $1\e[0m"
+	echo ""
        	mkdir $dir 2> /dev/null
     	numberoffiles=`cat $1 | yq .spec.config.storage.files[].path | wc -l`
         for x in $( seq 0 $numberoffiles) ; do file=`cat $1 |  yq .spec.config.storage.files[$x].path | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq .spec.config.storage.files[$x].contents.source > $dir/${file%\"} ; done
@@ -24,6 +40,7 @@ function decode() {
 
 function compare() {
 	echo -e "\e[1mchecking differences between $1 and $2 MachineConfig files\e[0m"
+	echo ""
         for i in $1 $2 ; do
                name=`cat $i 2> /dev/null | yq .metadata.name | sed 's/"//g'`
                creationtime=`cat $i 2> /dev/null  | yq .metadata.creationTimestamp | sed 's/"//g'`
@@ -33,13 +50,16 @@ function compare() {
         dir1=`cat $1 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         dir2=`cat $2 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         diff=`diff -q $dir1/decoded/ $dir2/decoded/ | sort`
-        echo -e "\e[1;43mUnique files existing is $1 MachineConfig only:\e[0m"
+        echo -e "\e[1;43mUnique files existing only in $1 MachineConfig:\e[0m"
+	echo ""
         echo "$diff" | grep Only | grep $dir1
 	echo ""
-        echo -e "\e[1;43mUnique files existing is $2 MachineConfig only:\e[0m"
+        echo -e "\e[1;43mUnique files existing only in $2 MachineConfig:\e[0m"
+	echo ""
         echo "$diff" | grep Only | grep $dir2
         echo ""
-	echo -e "\e[1;43mFiles existing in both MachineConfig but differ in contents:\e[0m"
+	echo -e "\e[1;43mFiles existing in both MachineConfig files $1 and $2 but differ in contents:\e[0m"
+	echo ""
         echo "$diff" | grep differ | awk '{print $2}' | cut -d "/" -f3
 	echo ""
 }
@@ -107,5 +127,5 @@ elif [ "$1" == "compare" ]; then
 		compare $1 $2
 	fi
 else
-	echo "$1 is not a valid option"
+	echo "$1 is not a valid option, choose either "decode" or "compare""
 fi
