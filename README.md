@@ -23,10 +23,9 @@ You can use this tool to separate between these configuration files and `decode`
 ~~~
 # ./mca.sh decode mc-file.yaml
 ~~~
+The `decode` option can work with multiple MachineConfig file at the same time, it will create a separate directory fr each MachineConfig file. The name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
 
-A new directory will be created, the name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
-
-The name of the directly will also contain the `creationTimestamp` part to make it easier to identify it.
+The name of the directory will also be prefixed with the `creationTimestamp` part to make it easier to identify it, for example:
 ~~~
 # ./mca.sh mc-file1.yaml mc-file2.yaml mc-file3.yaml
 
