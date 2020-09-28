@@ -9,7 +9,7 @@ This script can take one of three options:
     Gives a brief description about the tool
 
 
-# Example, using `decode` option:
+# Using `decode` operation:
 
 Assuming I have generated a YAMl file using the following command:
 ~~~
@@ -23,9 +23,9 @@ You can use this tool to separate between these configuration files and `decode`
 ~~~
 # ./mca.sh decode mc-file.yaml
 ~~~
-The `decode` option can work with multiple MachineConfig file at the same time, it will create a separate directory fr each MachineConfig file. The name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
+The `decode` option can work with multiple MachineConfig files at the same time. It will create a separate directory for each MachineConfig file, the name of the directory is the name of the MachineConfig resource `extracted from the YAMl file` and not the name of the YAML file itself.
 
-The name of the directory will also be prefixed with the `creationTimestamp` part to make it easier to identify it, for example:
+The name of the directory will also be prefixed with the `creationTimestamp` part, for example:
 ~~~
 # ./mca.sh mc-file1.yaml mc-file2.yaml mc-file3.yaml
 
@@ -57,9 +57,9 @@ And another sub-directory called **decoded** will be created for the same files 
 -rw-rw-r--. 1 user user 1.4K Sep 27 21:14 tokenize-signer.sh
 ~~~
 
-# Example, using `compare` option:
+# Using `compare` operation:
 
-Assuming you have generated a YAMl file using the following command:
+Assuming you have generated MachineConfig YAMl files using the following command:
 ~~~
 # oc get mc <name> -o yaml > mc-file1.yaml
 # oc get mc <another name> -o yaml > mc-file2.yaml
@@ -70,9 +70,10 @@ You can compare between their contents as follows:
 # ./mca.sh compare mc-file1.yaml mc-file2.yaml
 ~~~
 
-It will show both uniqe files in each machineConfig and common files with different contents, for example:
+It will show unique files in each machineConfig and also common files with different contents, for example:
 ~~~
-checking differences between July7.yaml and Sep18.yaml MachineConfig files
+# ./mca.sh compare mc-file1.yaml mc-file2.yaml
+checking differences between mc-file1.yaml and mc-file2.yaml MachineConfig files
 
 .... decoding mc-file1.yaml
 
@@ -106,7 +107,7 @@ sdn.conf
 # Notes:
 - machineConfig files should be in YAML format "for now".
 - `compare` operation will first `decode`, even if `decode` operation was already done.
-- This tool uses `yq` that can be installed by running the following command:
+- This tool uses `yq` to filter YAML outputs, it can be installed by running the following command:
 ~~~
 # pip install yq
 ~~~
