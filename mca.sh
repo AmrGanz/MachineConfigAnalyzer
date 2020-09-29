@@ -64,6 +64,17 @@ function compare() {
 	echo ""
 }
 
+function extract() {
+	# check if the provided file path exists in the MachineConfig file
+	configfile=`cat $mcfile | yq --arg conf "$1" '.spec.config.storage.files[] | select(.path == $conf)' | yq .contents.source`
+	if [ -z $configfile ]; then
+		echo -e "\e[1;33mWARNING:\e[0m $1 doesn't exist in $mcfile MahineConfig"
+	else
+		echo $configfile | urldecode | sed '1 s/"data:,//' | sed '$ d' > $dir/decoded/decoded-`echo $1 | rev | cut -d '/' -f 1 | rev`
+		echo "$1 got extracted"
+	fi
+}
+
 # check if an argument(s) has been provided
 if [ "$#" -eq 0 ]; then
 	echo "Please select and operation and provide the MachineConfig files"
@@ -126,6 +137,25 @@ elif [ "$1" == "compare" ]; then
 		done
 		compare $1 $2
 	fi
+elif [ "$1" == "extract" ]; then
+	checkfile $2
+	if [ $? -eq 0 ]; then
+		mcfile=$2
+		name=`cat $2 2> /dev/null | yq .metadata.name | sed 's/"//g'`
+        	creationtime=`cat $2 2> /dev/null  | yq .metadata.creationTimestamp | sed 's/"//g'`
+		dir="$name-$creationtime"
+		mkdir -p $dir/decoded/ 2> /dev/null
+		shift
+		shift
+		for i in $@ ; do
+			extract $i
+		done
+		echo -e "Check extracted configuration files under \e[34m$dir/decoded/\e[0m"
+	 else
+        		echo "$2 is not a valid MachineConfig file"
+	        exit 1
+        fi
+
 else
-	echo "$1 is not a valid option, choose either "decode" or "compare""
+	echo "$1 is not a valid option, choose either "decode" , "compare" or "extract""
 fi
