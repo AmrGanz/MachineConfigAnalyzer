@@ -70,7 +70,7 @@ function extract() {
 	if [ -z $configfile ]; then
 		echo -e "\e[1;33mWARNING:\e[0m $1 doesn't exist in $mcfile MahineConfig"
 	else
-		echo $configfile | urldecode | sed '1 s/"data:,//' | sed '$ d' > $dir/decoded/decoded-`echo $1 | rev | cut -d '/' -f 1 | rev`
+		echo $configfile | urldecode | sed '1 s/"data:,//' | sed '$ d' > $dir/decoded/`echo $1 | rev | cut -d '/' -f 1 | rev`
 		echo "$1 got extracted"
 	fi
 }
