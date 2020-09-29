@@ -104,6 +104,21 @@ root-ca.crt
 sdn.conf
 ~~~
 
+# Using `extract` operation:
+Gives you the ability to extract specific configuration file(s) from the MachineCOnfig YAML file and decode it.
+~~~
+# ./mca.sh extract mc-file1.yaml /etc/crio/crio.conf /wrong/file /etc/kubernetes/ca.crt
+/etc/crio/crio.conf got extracted
+WARNING: /wrong/file doesn't exist in May19.yaml MahineConfig
+/etc/kubernetes/ca.crt got extracted
+Check extracted configuration files under rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/
+
+# ls rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/
+crio.conf
+ca.crt
+~~~
+
+
 # Notes:
 - machineConfig files should be in YAML format "for now".
 - `compare` operation will first `decode`, even if `decode` operation was already done.
