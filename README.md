@@ -107,7 +107,12 @@ sdn.conf
 # Using `extract` operation:
 Gives you the ability to extract specific configuration file(s) from the MachineCOnfig YAML file and decode it.
 ~~~
+# ./mca.sh extract <MachineCOnfig file> <configuration file1 path>...
+~~~
+For example:
+~~~
 # ./mca.sh extract mc-file1.yaml /etc/crio/crio.conf /wrong/file /etc/kubernetes/ca.crt
+
 /etc/crio/crio.conf got extracted
 WARNING: /wrong/file doesn't exist in May19.yaml MahineConfig
 /etc/kubernetes/ca.crt got extracted
