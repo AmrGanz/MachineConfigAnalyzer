@@ -132,5 +132,5 @@ ca.crt
 ~~~
 
 # limitations:
-~~- Services units data are in clear text, so I am still working on a away to exclude and separate them~~.
-~~- Some configurations are encoded using `base64` and it will require to be decoded separatly, I am also working on it.~~~
+~~- Services units data are in clear text, so I am still working on a away to exclude and separate them~~
+~~- Some configurations are encoded using `base64` and it will require to be decoded separatly, I am also working on it~~
