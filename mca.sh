@@ -32,10 +32,24 @@ function decode() {
 	echo -e "\e[1m.... decoding $1\e[0m"
 	echo ""
        	mkdir $dir 2> /dev/null
-    	numberoffiles=`cat $1 | yq .spec.config.storage.files[].path | wc -l`
-        for x in $( seq 0 $numberoffiles) ; do file=`cat $1 |  yq .spec.config.storage.files[$x].path | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq .spec.config.storage.files[$x].contents.source > $dir/${file%\"} ; done
+	# Selecting all of the configurations files "non empty" to be extracted
+	files=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,")).path' | sed 's/"//g'`
+	for x in $files ; do filename=`echo $x | rev | cut -d '/' -f 1 | rev | sed 's/"//g'` ; cat $1 | yq --arg var "$x" '.spec.config.storage.files[] | select(.path == $var).contents.source' > $dir/$filename ; done
+	
 	mkdir $dir/decoded/ 2> /dev/null
-       	for y in `ls $dir/ | grep -iv decoded` ; do cat $dir/$y | urldecode | sed '1 s/"data:,//' | sed '$s/^.*$//' > $dir/decoded/$y ; done
+
+	# separating files that are using url encoding
+	urlencodedfiles=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,") and (.contents.source | contains(";base64,") | not )).path' | sed 's/"//g'`
+	for y in $urlencodedfiles ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | urldecode | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/decoded/$filename ; done
+
+	# separating files that are using base64 encoding
+	base64files=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,") and (.contents.source | contains(";base64,"))).path' | sed 's/"//g'`
+       	for y in $base64files ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | sed -e 's/.*base64,\(.*\)"/\1/' | base64 -d | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/decoded/$filename ; done
+
+	# Separating services units configurations that are usually in clear text
+    	units=`cat $1 | yq '.spec.config.systemd.units[] | select(.contents != null).name' | sed 's/"//g' `
+	mkdir $dir/service-units/ 2> /dev/null
+	for x in $unitss ; do cat $1 | yq -r --arg z "$x" '.spec.config.systemd.units[] | select(.contents != null) | select(.name == $z).contents' | sed '${/^$/d;}' > $dir/service-units/$x ; done
 }
 
 function compare() {
@@ -96,7 +110,9 @@ OPERATIONS:
 	compare: 
 		Will try to find different files that have been extracted from each MachineConfig "this option will rely on the native 'diff' command".
 		It will always compare between the first two MachineConfig files, so a third or fourth or ... arguments will be neglected.
-        "
+        extract:
+		Specify file names to be extracted from the MachineConfig files instead of extracting everything from it.
+	"
 elif [ "$1" == "decode" ]; then
 	# skipping the first argument "operation"
 	shift
@@ -111,6 +127,7 @@ elif [ "$1" == "decode" ]; then
        		 		creationtime=`cat $i 2> /dev/null  | yq .metadata.creationTimestamp | sed 's/"//g'`
 	       	 		dir="$name-$creationtime"
 				decode "$i"
+				echo "Check $i data under $dir"
 			else
 				echo "$i is not a valid MachineConfig file"
         	        	exit 1
