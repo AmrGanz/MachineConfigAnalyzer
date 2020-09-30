@@ -47,13 +47,13 @@ function decode() {
        	for y in $base64files ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | sed -e 's/.*base64,\(.*\)"/\1/' | base64 -d | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/decoded/$filename ; done
 
 	# Separating services units configurations that are usually in clear text
-    	units=`cat $1 | yq '.spec.config.systemd.units[] | select(.contents != null).name' | sed 's/"//g' `
+    	units=`cat $1 | yq '.spec.config.systemd.units[] | select(.contents != null).name' | sed 's/"//g'`
 	mkdir $dir/service-units/ 2> /dev/null
-	for x in $unitss ; do cat $1 | yq -r --arg z "$x" '.spec.config.systemd.units[] | select(.contents != null) | select(.name == $z).contents' | sed '${/^$/d;}' > $dir/service-units/$x ; done
+	for x in $units ; do cat $1 | yq -r --arg z "$x" '.spec.config.systemd.units[] | select(.contents != null) | select(.name == $z).contents' | sed '${/^$/d;}' > $dir/service-units/$x ; done
 }
 
 function compare() {
-	echo -e "\e[1mchecking differences between $1 and $2 MachineConfig files\e[0m"
+	echo -e "\e[1mDecoding $1 and $2 MachineConfig files first\e[0m"
 	echo ""
         for i in $1 $2 ; do
                name=`cat $i 2> /dev/null | yq .metadata.name | sed 's/"//g'`
@@ -63,7 +63,8 @@ function compare() {
         done
         dir1=`cat $1 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         dir2=`cat $2 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
-        diff=`diff -q $dir1/decoded/ $dir2/decoded/ | sort`
+        echo -e "\e[1mComparing configuration files between $1 and $2\e[0m"
+	diff=`diff -q $dir1/decoded/ $dir2/decoded/ | sort`
         echo -e "\e[1;43mUnique files existing only in $1 MachineConfig:\e[0m"
 	echo ""
         echo "$diff" | grep Only | grep $dir1
@@ -73,6 +74,21 @@ function compare() {
         echo "$diff" | grep Only | grep $dir2
         echo ""
 	echo -e "\e[1;43mFiles existing in both MachineConfig files $1 and $2 but differ in contents:\e[0m"
+	echo ""
+        echo "$diff" | grep differ | awk '{print $2}' | cut -d "/" -f3
+	echo ""
+	echo "=============================================================="
+        echo -e "\e[1mComparing services configurations between $1 and $2\e[0m"
+	diff=`diff -q $dir1/service-units/ $dir2/service-units/ | sort`
+        echo -e "\e[1;43mUnique services configurations existing only in $1 MachineConfig:\e[0m"
+	echo ""
+        echo "$diff" | grep Only | grep $dir1
+	echo ""
+        echo -e "\e[1;43mUnique services configurations existing only in $2 MachineConfig:\e[0m"
+	echo ""
+        echo "$diff" | grep Only | grep $dir2
+        echo ""
+	echo -e "\e[1;43mServices configurations existing in both MachineConfig files $1 and $2 but differ in contents:\e[0m"
 	echo ""
         echo "$diff" | grep differ | awk '{print $2}' | cut -d "/" -f3
 	echo ""
@@ -127,7 +143,7 @@ elif [ "$1" == "decode" ]; then
        		 		creationtime=`cat $i 2> /dev/null  | yq .metadata.creationTimestamp | sed 's/"//g'`
 	       	 		dir="$name-$creationtime"
 				decode "$i"
-				echo "Check $i data under $dir"
+				echo "Check $i data under $dir directory"
 			else
 				echo "$i is not a valid MachineConfig file"
         	        	exit 1
