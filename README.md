@@ -1,4 +1,4 @@
-# A tool to decode and compare configuration files embeded in MachineConfig(s) in OpenShift4.
+# A tool to decode and compare the contents of MachineConfig(s) in OpenShift4.
 
 This script can take one of three options:
 - decode:
