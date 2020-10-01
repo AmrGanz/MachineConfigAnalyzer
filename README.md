@@ -16,7 +16,7 @@ Assuming I have generated a YAMl file using the following command:
 # oc get mc <name> -o yaml > mc-file.yaml
 ~~~        
 
-Normally, this file is encoded and it is difficult to read the configuration file contents directly from it. Also, the YAML file can contain multiple configuration files at the same time.
+Normally, this file is encoded and it is difficult to read the configuration file(s) contents directly from it.
 
 You can use this tool to separate between these configuration files and `decode` it into a readable format:
 
@@ -49,11 +49,20 @@ drwxrwxr-x. 2 user user 4.0K Sep 27 20:13 decoded
 ~~~
 And another sub-directory called **decoded** will be created for the same files but in a readable, decoded format, for example:
 ~~~
-# ls -lh rendered-master-3130d4b00faa48cef9b9b50252bcdwdw9-2020-07-07T11:26:25Z/decoded/
+# ls -lh rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/decoded/
 ...
 -rw-rw-r--. 1 user user  272 Sep 27 21:14 sdn.conf
 -rw-rw-r--. 1 user user 5.9K Sep 27 21:14 storage.conf
 -rw-rw-r--. 1 user user 1.4K Sep 27 21:14 tokenize-signer.sh
+~~~
+
+It will also extract the services configurations `.spec.config.systemd.units` under **service-units** subdirectory.
+~~~
+# ls -lh rendered-master-3130d4b00faa48cef9b9b50252bcaaaaa-2019-03-07T11:26:25Z/service-units/
+-rw-rw-r--. 1 user user 1.2K Sep 30 21:03 kubelet.service
+-rw-rw-r--. 1 user user  661 Sep 30 21:03 machine-config-daemon-firstboot.service
+-rw-rw-r--. 1 user user  596 Sep 30 21:03 machine-config-daemon-firstboot-v42.service
+-rw-rw-r--. 1 user user  636 Sep 30 21:03 machine-config-daemon-host.service
 ~~~
 
 # Using `compare` operation:
