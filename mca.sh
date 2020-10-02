@@ -32,19 +32,13 @@ function decode() {
 	echo -e "\e[1m.... decoding $1\e[0m"
 	echo ""
        	mkdir $dir 2> /dev/null
-	# Selecting all of the configurations files "non empty" to be extracted
-	files=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,")).path' | sed 's/"//g'`
-	for x in $files ; do filename=`echo $x | rev | cut -d '/' -f 1 | rev | sed 's/"//g'` ; cat $1 | yq --arg var "$x" '.spec.config.storage.files[] | select(.path == $var).contents.source' > $dir/$filename ; done
-	
-	mkdir $dir/decoded/ 2> /dev/null
-
 	# separating files that are using url encoding
 	urlencodedfiles=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,") and (.contents.source | contains(";base64,") | not )).path' | sed 's/"//g'`
-	for y in $urlencodedfiles ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | urldecode | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/decoded/$filename ; done
+	for y in $urlencodedfiles ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | urldecode | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/$filename ; done
 
 	# separating files that are using base64 encoding
 	base64files=`cat $1 | yq '.spec.config.storage.files[] | select((.contents.source != "data:,") and (.contents.source | contains(";base64,"))).path' | sed 's/"//g'`
-       	for y in $base64files ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | sed -e 's/.*base64,\(.*\)"/\1/' | base64 -d | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/decoded/$filename ; done
+       	for y in $base64files ; do filename=`echo $y | rev | cut -d '/' -f 1 | rev` ; cat $1 | yq --arg path "$y" '.spec.config.storage.files[] | select(.path == $path).contents.source' | sed -e 's/.*base64,\(.*\)"/\1/' | base64 -d | sed '1 s/"data:,//' | sed '$s/^.*$//' | sed '${/^$/d;}' > $dir/$filename ; done
 
 	# Separating services units configurations that are usually in clear text
     	units=`cat $1 | yq '.spec.config.systemd.units[] | select(.contents != null).name' | sed 's/"//g'`
@@ -64,7 +58,7 @@ function compare() {
         dir1=`cat $1 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         dir2=`cat $2 | yq '.metadata | .name, .creationTimestamp' | sed 's/"//g' | paste -d "-"  - -`
         echo -e "\e[1mComparing configuration files between $1 and $2\e[0m"
-	diff=`diff -q $dir1/decoded/ $dir2/decoded/ | sort`
+	diff=`diff -q $dir1/ $dir2/ | sort`
         echo -e "\e[1;43mUnique files existing only in $1 MachineConfig:\e[0m"
 	echo ""
         echo "$diff" | grep Only | grep $dir1
@@ -98,38 +92,34 @@ function extract() {
 	# check if the provided file path exists in the MachineConfig file
 	configfile=`cat $mcfile | yq --arg conf "$1" '.spec.config.storage.files[] | select(.path == $conf)' | yq .contents.source`
 	if [ -z $configfile ]; then
-		echo -e "\e[1;33mWARNING:\e[0m $1 doesn't exist in $mcfile MahineConfig"
+		echo -e "\e[1;33mWARNING:\e[0m $1 doesn't exist in $mcfile MahineConfig. Please make sure to use the full path"
 	else
-		echo $configfile | urldecode | sed '1 s/"data:,//' | sed '$ d' > $dir/decoded/`echo $1 | rev | cut -d '/' -f 1 | rev`
+		echo $configfile | urldecode | sed '1 s/"data:,//' | sed '$ d' > $dir/`echo $1 | rev | cut -d '/' -f 1 | rev`
 		echo "$1 got extracted"
 	fi
 }
 
-# check if an argument(s) has been provided
-if [ "$#" -eq 0 ]; then
-	echo "Please select and operation and provide the MachineConfig files"
-	exit 1
 # show description of each option
-elif [ "$1" == "help" ]; then
+if [[ "$1" == "help" || "$1" == "--help"|| "$1" == "-h" || "$#" == 0 ]]; then
 	echo "==============================================================================================================="
 	echo "A tool to decode MachineConfig YAML failes into a readable format and extracts configurations data of each file"
 	echo "==============================================================================================================="
         echo "
 USAGE: ./decode-mc.sh <operation> <MachineConfig file1> <MachineConfig file2> ....
 
-OPERATIONS:
-       	decode: 
+OPTIONS:
+       	decode, --decode, -d: 
 		Can take multiple MachineConfig files to decode them into a readable files and extract the configurations from each one.
                	Each provides MachineConfig file will result in a newly created direcory for it. This directory will have the actual name.
                	of the provided MachineConfig file.
 	
-	compare: 
+	compare, --compare, -c:
 		Will try to find different files that have been extracted from each MachineConfig "this option will rely on the native 'diff' command".
 		It will always compare between the first two MachineConfig files, so a third or fourth or ... arguments will be neglected.
-        extract:
-		Specify file names to be extracted from the MachineConfig files instead of extracting everything from it.
+        extract, --extract, -e:
+		Specify full file path to be extracted from the MachineConfig files instead of extracting everything from it.
 	"
-elif [ "$1" == "decode" ]; then
+elif [[ "$1" == "decode" || "$1" == "--decode" || "$1" == "-d" ]]; then
 	# skipping the first argument "operation"
 	shift
 	if [ $# -eq 0 ]; then
@@ -151,7 +141,7 @@ elif [ "$1" == "decode" ]; then
 
 		done
 	fi
-elif [ "$1" == "compare" ]; then
+elif [[ "$1" == "compare" || "$1" == "--compare" || "$1" == "-c" ]]; then
 	# skipping the first argument "operation"
 	shift
 	if [ $# -lt 2 ]; then
@@ -170,20 +160,33 @@ elif [ "$1" == "compare" ]; then
 		done
 		compare $1 $2
 	fi
-elif [ "$1" == "extract" ]; then
+elif [[ "$1" == "extract" || "$1" == "--extract" || "$1" == "-e" ]]; then
 	checkfile $2
 	if [ $? -eq 0 ]; then
 		mcfile=$2
 		name=`cat $2 2> /dev/null | yq .metadata.name | sed 's/"//g'`
         	creationtime=`cat $2 2> /dev/null  | yq .metadata.creationTimestamp | sed 's/"//g'`
 		dir="$name-$creationtime"
-		mkdir -p $dir/decoded/ 2> /dev/null
 		shift
 		shift
+		pass="0"
 		for i in $@ ; do
-			extract $i
+			configfile=`cat $mcfile | yq --arg conf "$i" '.spec.config.storage.files[] | select(.path == $conf)' | yq .contents.source`
+			if [ -z $configfile ]; then
+				pass=$pass
+			else
+				pass=1
+			fi
 		done
-		echo -e "Check extracted configuration files under \e[34m$dir/decoded/\e[0m"
+		if [ "$pass" -ne 0 ]; then
+			mkdir -p $dir/ 2> /dev/null
+			for i in $@ ; do
+				extract $i
+			done
+			echo -e "Check extracted configuration files under \e[34m$dir/\e[0m"
+		else
+			echo "None of the provided files exists in $mcfile"
+		fi
 	 else
         		echo "$2 is not a valid MachineConfig file"
 	        exit 1
