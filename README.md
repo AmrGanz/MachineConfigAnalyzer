@@ -5,6 +5,8 @@ This script can take one of three options:
     Takes multiple MachineConfig YAML files to decode them.
 - compare:
     Takes two MachineConfig YAML files, decode and compare between their contents
+- extract:
+    Specify the full file path to be extracted from the MachineConfig files instead of extracting everything from the MC
 - help:
     Gives a brief description about this tool
 
