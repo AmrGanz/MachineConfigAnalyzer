@@ -69,7 +69,7 @@ function compare() {
         echo ""
 	echo -e "\e[1;43mFiles existing in both MachineConfig files $1 and $2 but differ in contents:\e[0m"
 	echo ""
-        echo "$diff" | grep differ | awk '{print $2}' | cut -d "/" -f3
+        echo "$diff" | grep differ | awk '{print $2}' | cut -d "/" -f2
 	echo ""
 	echo "=============================================================="
         echo -e "\e[1mComparing services configurations between $1 and $2\e[0m"
