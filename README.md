@@ -28,7 +28,7 @@ You can use this tool to separate between these configuration files and `decode`
 The `decode` option can work with multiple MachineConfig files at the same time.
 It will create a directory with the name `metdata.name`-`metadata.creationTimestamp` that are extraced from the YAML file, for example:
 ~~~
-# ./mca.sh mc-file1.yaml mc-file2.yaml mc-file3.yaml
+# ./mca.sh decode mc-file1.yaml mc-file2.yaml mc-file3.yaml
 
 # ls
 -rw-r--r--. 1 user user 117349 Sep 24 14:41 mc-file1.yaml
