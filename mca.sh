@@ -10,7 +10,7 @@ if [ $pversion == 2 ]; then
 elif [ $pversion == 3 ]; then
 	alias urldecode='python -c "import sys, urllib.parse as ul; print(ul.unquote(sys.argv[1] if len(sys.argv) > 1 else sys.stdin.read()[0:-1]))"'
 else
-	echo "make sure you have python onstaled!"
+	echo "make sure you have python installed!"
 fi
 
 # Check if "yq" is installed
